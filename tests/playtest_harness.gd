@@ -23,11 +23,18 @@ func _record_result(category: String, test_name: String, passed: bool, details: 
 	print("[%s] %s :: %s %s" % [status, category, test_name, "(" + details + ")" if details != "" else ""])
 
 func _run_all_tests() -> void:
+	if Events.level_escaped.is_connected(GameManager._on_level_escaped):
+		Events.level_escaped.disconnect(GameManager._on_level_escaped)
+		
 	_test_menu_flow_bot()
 	_test_scripted_fairness_rules()
 	_test_full_loop_floors([1, 3, 5, 8, 12, 18, 25])
 	_test_stability_and_memory()
 	
+	if not Events.level_escaped.is_connected(GameManager._on_level_escaped):
+		Events.level_escaped.connect(GameManager._on_level_escaped)
+		
+	await get_tree().process_frame
 	_print_summary_table()
 
 # ---------------------------------------------------------
@@ -69,7 +76,7 @@ func _test_menu_flow_bot() -> void:
 		if all_buttons_valid:
 			_record_result("MENU_BOT", item["path"].get_file(), true, "%d buttons verified wired" % item["buttons"].size())
 			
-		inst.queue_free()
+		inst.free()
 
 func _find_node_by_name(root: Node, name: String) -> Node:
 	if root.name == name:
@@ -155,7 +162,7 @@ func _test_scripted_fairness_rules() -> void:
 	guard.apply_pickpocket()
 	_record_result("FAIRNESS", "Pickpocket Hold Grants +6 Coins Cleanly", true, "Coins transferred without alert")
 	
-	world_node.queue_free()
+	world_node.free()
 
 # ---------------------------------------------------------
 # 3. FULL GAME LOOP BOT (FLOORS 1, 3, 5, 8, 12, 18, 25)
@@ -212,7 +219,7 @@ func _test_full_loop_floors(floors_to_test: Array[int]) -> void:
 		var loop_ok = spawn_valid and key_reached and is_lockdown and (not path_to_exit.is_empty())
 		_record_result("FULL_LOOP", "Floor %02d (Grid %dx%d, Guards: %d)" % [fl, level_data["width"], level_data["width"], level_data["guards"].size()], loop_ok, "Infiltration -> Key -> Lockdown -> Exit OK")
 		
-		lvl.queue_free()
+		lvl.free()
 
 # ---------------------------------------------------------
 # 4. STABILITY & MEMORY LEAK CHECK

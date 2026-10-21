@@ -19,6 +19,10 @@ func _ready() -> void:
 	if has_node("/root/Events"):
 		Events.lockdown_initiated.connect(_on_lockdown)
 
+func _exit_tree() -> void:
+	if has_node("/root/Events") and Events.lockdown_initiated.is_connected(_on_lockdown):
+		Events.lockdown_initiated.disconnect(_on_lockdown)
+
 func init_casing(center: Vector2, size: Vector2) -> void:
 	maze_center = center
 	casing_active = true

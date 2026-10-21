@@ -40,12 +40,27 @@ func _ready() -> void:
 	_setup_touch_controls()
 	AudioManager.start_gameplay_stems()
 
+var _on_coin_callable: Callable
+
 func _connect_signals() -> void:
-	Events.coin_collected.connect(func(_amt, _tot): _update_hud())
+	_on_coin_callable = func(_amt, _tot): _update_hud()
+	Events.coin_collected.connect(_on_coin_callable)
 	Events.key_collected.connect(_on_key_collected)
 	Events.lockdown_initiated.connect(_on_lockdown)
 	Events.camera_shake_requested.connect(_on_camera_shake)
 	Events.casing_phase_ended.connect(_on_casing_phase_ended)
+
+func _exit_tree() -> void:
+	if Events.coin_collected.is_connected(_on_coin_callable):
+		Events.coin_collected.disconnect(_on_coin_callable)
+	if Events.key_collected.is_connected(_on_key_collected):
+		Events.key_collected.disconnect(_on_key_collected)
+	if Events.lockdown_initiated.is_connected(_on_lockdown):
+		Events.lockdown_initiated.disconnect(_on_lockdown)
+	if Events.camera_shake_requested.is_connected(_on_camera_shake):
+		Events.camera_shake_requested.disconnect(_on_camera_shake)
+	if Events.casing_phase_ended.is_connected(_on_casing_phase_ended):
+		Events.casing_phase_ended.disconnect(_on_casing_phase_ended)
 
 func _generate_and_spawn() -> void:
 	var fl = GameManager.current_floor

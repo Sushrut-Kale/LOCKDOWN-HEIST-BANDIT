@@ -5,7 +5,6 @@ extends Node2D
 const LevelGenerator = preload("res://scripts/generation/level_generator.gd")
 const CELL_SIZE: int = 64
 
-
 @onready var walls_node: Node2D = $Walls
 @onready var floors_node: Node2D = $Floors
 @onready var objects_node: Node2D = $Objects
@@ -14,14 +13,18 @@ const CELL_SIZE: int = 64
 @onready var camera: Camera2D = $Camera2D
 @onready var hud: CanvasLayer = $HUD
 @onready var canvas_modulate: CanvasModulate = $CanvasModulate
+@onready var lockdown_manager: LockdownManager = $LockdownManager
 
 # HUD nodes
-@onready var lbl_floor: Label = $HUD/TopBar/FloorLabel
-@onready var lbl_coins: Label = $HUD/TopBar/CoinLabel
-@onready var lbl_timer: Label = $HUD/TopBar/TimerLabel
-@onready var key_icon: TextureRect = $HUD/TopBar/KeyIcon
-@onready var lbl_cuffs: Label = $HUD/TopBar/CuffsLabel
-@onready var banner_lockdown: Panel = $HUD/LockdownBanner
+@onready var lbl_floor: Label = $HUD/TopBarPanel/HBox/FloorBadge
+@onready var lbl_seed: Label = $HUD/TopBarPanel/HBox/SeedBadge
+@onready var lbl_coins: Label = $HUD/TopBarPanel/HBox/CoinBox/CoinLabel
+@onready var lbl_timer: Label = $HUD/TopBarPanel/HBox/TimerLabel
+@onready var key_icon: TextureRect = $HUD/TopBarPanel/HBox/KeyBox/KeyIcon
+@onready var key_label: Label = $HUD/TopBarPanel/HBox/KeyBox/KeyLabel
+@onready var lbl_cuffs: Label = $HUD/TopBarPanel/HBox/CuffBox/CuffsLabel
+@onready var banner_casing: PanelContainer = $HUD/CasingBanner
+@onready var banner_lockdown: PanelContainer = $HUD/LockdownBanner
 @onready var touch_controls: Control = $HUD/TouchControls
 
 var player: BanditPlayer = null
@@ -30,7 +33,7 @@ var shake_timer: float = 0.0
 
 func _ready() -> void:
 	banner_lockdown.visible = false
-	key_icon.modulate = Color(0.3, 0.3, 0.4, 0.7)
+	banner_casing.visible = true
 	
 	_connect_signals()
 	_generate_and_spawn()
@@ -42,6 +45,7 @@ func _connect_signals() -> void:
 	Events.key_collected.connect(_on_key_collected)
 	Events.lockdown_initiated.connect(_on_lockdown)
 	Events.camera_shake_requested.connect(_on_camera_shake)
+	Events.casing_phase_ended.connect(_on_casing_phase_ended)
 
 func _generate_and_spawn() -> void:
 	var fl = GameManager.current_floor
@@ -50,6 +54,10 @@ func _generate_and_spawn() -> void:
 	
 	GameManager.level_total_coins = data["coins"].size()
 	
+	var maze_w_px = data["width"] * CELL_SIZE
+	var maze_h_px = data["height"] * CELL_SIZE
+	var maze_center = Vector2(maze_w_px / 2.0, maze_h_px / 2.0)
+
 	# 1. Spawn Blueprint Floor Tiles
 	var floor_tex = load("res://assets/sprites/tileset_blueprint.png")
 	for y in range(data["height"]):
@@ -70,7 +78,8 @@ func _generate_and_spawn() -> void:
 	# 3. Spawn Player at Entrance
 	var p_scene = load("res://scenes/player/BanditPlayer.tscn")
 	player = p_scene.instantiate() as BanditPlayer
-	player.position = Vector2(data["entrance"].x * CELL_SIZE + 32, data["entrance"].y * CELL_SIZE + 32)
+	var spawn_pos = Vector2(data["entrance"].x * CELL_SIZE + 32, data["entrance"].y * CELL_SIZE + 32)
+	player.position = spawn_pos
 	add_child(player)
 
 	# 4. Spawn Exit Vault Door
@@ -128,6 +137,9 @@ func _generate_and_spawn() -> void:
 	if fl == 1:
 		_spawn_chalk_hints(data)
 
+	# 11. Initialize Casing Mode with centered camera
+	lockdown_manager.init_casing(maze_center, Vector2(maze_w_px, maze_h_px))
+
 	_update_hud()
 
 func _spawn_wall(p: Vector2i, walls: Dictionary) -> void:
@@ -145,7 +157,6 @@ func _spawn_wall(p: Vector2i, walls: Dictionary) -> void:
 	var sp = Sprite2D.new()
 	sp.texture = load("res://assets/sprites/tileset_blueprint.png")
 	sp.region_enabled = true
-	# Select wall frame: 3 (Solid), 4 (Horiz double), 5 (Vert double)
 	var has_l = walls.has(p + Vector2i.LEFT)
 	var has_r = walls.has(p + Vector2i.RIGHT)
 	if has_l and has_r:
@@ -154,7 +165,6 @@ func _spawn_wall(p: Vector2i, walls: Dictionary) -> void:
 		sp.region_rect = Rect2(3 * 64, 0, 64, 64)
 	sb.add_child(sp)
 	
-	# Light Occluder so flashlight cones cast crisp shadows!
 	var occluder = LightOccluder2D.new()
 	var occ_poly = OccluderPolygon2D.new()
 	occ_poly.polygon = PackedVector2Array([
@@ -168,21 +178,37 @@ func _spawn_wall(p: Vector2i, walls: Dictionary) -> void:
 
 func _spawn_chalk_hints(data: Dictionary) -> void:
 	_create_chalk_label("Sneak behind guard -> Tap [E] Knockout", Vector2(data["entrance"].x * CELL_SIZE + 32, data["entrance"].y * CELL_SIZE + 100))
-	_create_chalk_label("Master Key triggers LOCKDOWN!", Vector2(data["master_key"].x * CELL_SIZE + 32, data["master_key"].y * CELL_SIZE - 40))
-	_create_chalk_label("Escape Route: Vault unlocks in Lockdown!", Vector2(data["exit_door"].x * CELL_SIZE + 32, data["exit_door"].y * CELL_SIZE - 40))
+	_create_chalk_label("Master Key triggers LOCKDOWN!", Vector2(data["master_key"].x * CELL_SIZE + 32, data["master_key"].y * CELL_SIZE - 45))
+	_create_chalk_label("Escape Route: Vault unlocks in Lockdown!", Vector2(data["exit_door"].x * CELL_SIZE + 32, data["exit_door"].y * CELL_SIZE - 45))
 
 func _create_chalk_label(text: String, pos: Vector2) -> void:
+	var panel = PanelContainer.new()
+	panel.position = pos - Vector2(160, 16)
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.12, 0.24, 0.8)
+	style.border_color = Color(0, 0.85, 1, 0.6)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 4
+	style.content_margin_bottom = 4
+	panel.add_theme_stylebox_override("panel", style)
+	
 	var lbl = Label.new()
 	lbl.text = text
-	lbl.position = pos - Vector2(120, 10)
-	lbl.modulate = Color(0.4, 0.8, 1.0, 0.6)
+	lbl.add_theme_color_override("font_color", Color(0.7, 0.95, 1.0, 0.95))
+	lbl.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	chalk_node.add_child(lbl)
+	panel.add_child(lbl)
+	
+	chalk_node.add_child(panel)
 
 func _process(delta: float) -> void:
-	# Camera follow player
-	if player:
-		camera.global_position = lerp(camera.global_position, player.global_position, 8.0 * delta)
+	# Camera smoothly tracks player when not in casing overview
+	if player and not lockdown_manager.casing_active:
+		camera.global_position = lerp(camera.global_position, player.global_position, 12.0 * delta)
 		
 	# Screen shake
 	if shake_timer > 0.0:
@@ -196,14 +222,21 @@ func _process(delta: float) -> void:
 	var sec = int(GameManager.level_elapsed_seconds)
 	lbl_timer.text = "%02d:%02d" % [sec / 60, sec % 60]
 
+func _on_casing_phase_ended() -> void:
+	var tw = create_tween()
+	tw.tween_property(banner_casing, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(func(): banner_casing.visible = false)
+
 func _on_key_collected() -> void:
-	key_icon.modulate = Color(1.0, 0.9, 0.2, 1.0) # Glowing gold
+	key_icon.modulate = Color(1.0, 0.9, 0.2, 1.0)
+	key_label.text = "KEY: ESCAPING!"
+	key_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.2, 1.0))
 
 func _on_lockdown() -> void:
 	banner_lockdown.visible = true
 	var tw = create_tween()
 	tw.tween_property(banner_lockdown, "modulate:a", 1.0, 0.2)
-	tw.tween_interval(3.0)
+	tw.tween_interval(3.5)
 	tw.tween_property(banner_lockdown, "modulate:a", 0.0, 0.8)
 
 func _on_camera_shake(intensity: float, duration: float) -> void:
@@ -211,8 +244,9 @@ func _on_camera_shake(intensity: float, duration: float) -> void:
 	shake_timer = duration
 
 func _update_hud() -> void:
-	lbl_floor.text = "FLOOR %02d (SEED: #%d)" % [GameManager.current_floor, GameManager.current_seed]
-	lbl_coins.text = "LOOT: %d / %d" % [GameManager.level_coins_collected, GameManager.level_total_coins]
+	lbl_floor.text = "FLOOR %02d" % GameManager.current_floor
+	lbl_seed.text = "#%d" % GameManager.current_seed
+	lbl_coins.text = "%d / %d" % [GameManager.level_coins_collected, GameManager.level_total_coins]
 	lbl_cuffs.text = "CUFFS: %d" % GameManager.free_cuffs_remaining
 
 func _setup_touch_controls() -> void:
@@ -222,7 +256,6 @@ func _setup_touch_controls() -> void:
 	elif mode == "off":
 		touch_controls.visible = false
 	else:
-		# Auto: detect touchscreen
 		touch_controls.visible = DisplayServer.is_touchscreen_available()
 
 func _on_pause_button_pressed() -> void:

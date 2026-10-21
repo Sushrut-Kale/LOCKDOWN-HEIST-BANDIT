@@ -24,10 +24,13 @@ hframes = 4
 
 [node name="LightCone" type="PointLight2D" parent="."]
 position = Vector2(12, 0)
+color = Color(1, 0.96, 0.75, 1)
+energy = 1.6
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 1.5
 texture = ExtResource("3_cone")
+texture_scale = 1.15
 offset = Vector2(120, 0)
 
 [node name="CatchArea" type="Area2D" parent="."]
@@ -49,6 +52,7 @@ offset_left = -20.0
 offset_top = -54.0
 offset_right = 20.0
 offset_bottom = -28.0
+theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 
 [connection signal="body_entered" from="CatchArea" to="." method="_on_catch_area_body_entered"]

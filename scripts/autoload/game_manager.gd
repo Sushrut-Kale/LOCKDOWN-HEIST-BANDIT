@@ -21,10 +21,32 @@ var caught_culprit: String = "Police Officer"
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_setup_input_map()
 	Events.coin_collected.connect(func(amt, _tot): level_coins_collected += amt)
 	Events.lockdown_initiated.connect(func(): is_lockdown_active = true)
 	Events.player_caught.connect(_on_player_caught)
 	Events.level_escaped.connect(_on_level_escaped)
+
+func _setup_input_map() -> void:
+	var key_binds = {
+		"move_left": [KEY_A, KEY_LEFT],
+		"move_right": [KEY_D, KEY_RIGHT],
+		"move_up": [KEY_W, KEY_UP],
+		"move_down": [KEY_S, KEY_DOWN],
+		"sprint": [KEY_SHIFT],
+		"interact": [KEY_E],
+		"toss_coin": [KEY_Q],
+		"use_gadget": [KEY_F],
+		"pause": [KEY_ESCAPE]
+	}
+	for action in key_binds:
+		if not InputMap.has_action(action):
+			InputMap.add_action(action)
+		for key in key_binds[action]:
+			var ev = InputEventKey.new()
+			ev.physical_keycode = key
+			InputMap.action_add_event(action, ev)
+
 
 func start_campaign(floor_num: int = 1) -> void:
 	current_floor = floor_num

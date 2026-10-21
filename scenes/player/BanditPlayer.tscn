@@ -1,0 +1,50 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/bandit_player.gd" id="1_player"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bandit_sheet.png" id="2_sheet"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bag_light.png" id="3_bag"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_player"]
+radius = 16.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interact"]
+radius = 48.0
+
+[node name="BanditPlayer" type="CharacterBody2D" groups=["player"]]
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_player")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_sheet")
+hframes = 4
+vframes = 4
+frame = 4
+
+[node name="BagSprite" type="Sprite2D" parent="."]
+texture = ExtResource("3_bag")
+position = Vector2(0, 10)
+
+[node name="InteractionArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
+shape = SubResource("CircleShape2D_interact")
+
+[node name="PromptLabel" type="Label" parent="."]
+offset_left = -90.0
+offset_top = -48.0
+offset_right = 90.0
+offset_bottom = -25.0
+horizontal_alignment = 1
+
+[node name="InteractProgress" type="ProgressBar" parent="."]
+offset_left = -24.0
+offset_top = 22.0
+offset_right = 24.0
+offset_bottom = 28.0
+show_percentage = false

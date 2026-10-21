@@ -1,0 +1,157 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/how_to_play_modal.gd" id="1_ht"]
+
+[node name="HowToPlayModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ht")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -280.0
+offset_right = 460.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 16.0
+offset_bottom = 44.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "BANDIT'S FIELD MANUAL"
+horizontal_alignment = 1
+
+[node name="TabContainer" type="TabContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 56.0
+offset_right = -24.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="1. Two Phases" type="VBoxContainer" parent="Panel/TabContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Desc" type="Label" parent="Panel/TabContainer/1. Two Phases"]
+layout_mode = 2
+text = "1. INFILTRATION: The maze is calm. Shutters are open, vents are closed. Study guard patrol cones, collect loot, and reach the Master Key.
+
+2. CRIMSON LOCKDOWN: Touching the Master Key triggers instant lockdown sirens! Shutters slam shut, green vents unlock, guards speed up +30%, and the Key Transponder pings your location every 8 seconds. Escape through the Vault Door!"
+autowrap_mode = 2
+
+[node name="2. Light & Sound" type="VBoxContainer" parent="Panel/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Desc" type="Label" parent="Panel/TabContainer/2. Light & Sound"]
+layout_mode = 2
+text = "FLASH CONES & SUSPICION:
+- Flashlights cast real wall shadows. Glimpsing the edge fills the [?] meter in 0.40s.
+- Point-blank detection triggers [!] CHASE in 0.12s!
+- Break line-of-sight behind walls to escape chase.
+
+SOUND RIPPLES:
+- Sneak (Silent): 0 px noise radius.
+- Walk: 34 px soft step.
+- Sprint: 110 px loud ring + Loot Bag jingle! Guard will investigate noise rings."
+autowrap_mode = 2
+
+[node name="3. Thief Tools" type="VBoxContainer" parent="Panel/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Desc" type="Label" parent="Panel/TabContainer/3. Thief Tools"]
+layout_mode = 2
+text = "BACK-ONLY INTERACTIONS (Approach guard from behind):
+- Tap [E]: Non-lethal Knockout! Drops +3 coins, knocks guard out for 35s (Zzz timer).
+- Tap [E] on Sleeping Guard: Spend 1 Zip-Tie to CUFF them permanently!
+- Hold [E] (0.6s) on Unaware Guard: Master Pickpocket steals +6 coins cleanly without raising alarm!"
+autowrap_mode = 2
+
+[node name="4. Greed Bag" type="VBoxContainer" parent="Panel/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Desc" type="Label" parent="Panel/TabContainer/4. Greed Bag"]
+layout_mode = 2
+text = "THE GREED BAG RULE:
+- Unbanked coins are ONLY saved if you reach the exit alive! Getting caught loses all level loot.
+- Weight Slowdown:
+    0-14 Coins: Light (100% speed)
+    15-34 Coins: Medium (-6% speed)
+    35+ Coins: Heavy (-12% speed)
+- Coin Toss [Q]: Throw 1 coin to clink on the floor and distract guards away from your path!"
+autowrap_mode = 2
+
+[node name="5. Controls" type="VBoxContainer" parent="Panel/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Desc" type="Label" parent="Panel/TabContainer/5. Controls"]
+layout_mode = 2
+text = "KEYBOARD & MOUSE:
+- WASD / Arrow Keys: Move
+- Shift: Sprint (Hold)
+- E: Interact / Knockout / Cuff / Pickpocket
+- Q: Toss Distraction Coin
+- F: Use Equipped Gadget
+- Esc: Pause Game
+
+GAMEPAD (Xbox / PlayStation):
+- Left Stick / D-Pad: Move
+- RT / R2: Sprint
+- A / Cross: Interact
+- X / Square: Toss Coin
+- RB / R1: Gadget
+- Start: Pause"
+autowrap_mode = 2
+
+[node name="BtnClose" type="Button" parent="Panel"]
+custom_minimum_size = Vector2(140, 36)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -70.0
+offset_top = -48.0
+offset_right = 70.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "CLOSE MANUAL"

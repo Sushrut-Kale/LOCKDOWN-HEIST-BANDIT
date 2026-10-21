@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/objects/shutter_door.gd" id="1_shutter"]
+[ext_resource type="Texture2D" path="res://assets/sprites/shutter_door.png" id="2_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_shut"]
+size = Vector2(64, 64)
+
+[node name="ShutterDoor" type="StaticBody2D"]
+collision_layer = 1
+collision_mask = 6
+script = ExtResource("1_shutter")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_shut")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_tex")
+hframes = 3

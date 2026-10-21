@@ -1,0 +1,189 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/hideout_modal.gd" id="1_ho"]
+
+[node name="HideoutModal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ho")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.75)
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -440.0
+offset_top = -270.0
+offset_right = 440.0
+offset_bottom = 270.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Header" type="HBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 32.0
+offset_top = 20.0
+offset_right = -32.0
+offset_bottom = 54.0
+grow_horizontal = 2
+
+[node name="Title" type="Label" parent="Panel/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "THE HIDEOUT — UPGRADES & SUITS"
+
+[node name="BankedLabel" type="Label" parent="Panel/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+text = "VAULT: 0 COINS"
+
+[node name="StarsLabel" type="Label" parent="Panel/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 1, 1)
+text = "STARS: 0"
+
+[node name="Grid" type="GridContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 70.0
+offset_right = -32.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 16
+columns = 2
+
+[node name="SuitClassic" type="VBoxContainer" parent="Panel/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Panel/Grid/SuitClassic"]
+layout_mode = 2
+text = "Classic Bandit Suit (Default)"
+
+[node name="Btn" type="Button" parent="Panel/Grid/SuitClassic"]
+layout_mode = 2
+text = "EQUIPPED"
+
+[node name="SuitVelvet" type="VBoxContainer" parent="Panel/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Panel/Grid/SuitVelvet"]
+layout_mode = 2
+text = "Velvet Paws (-35% Noise)"
+
+[node name="Btn" type="Button" parent="Panel/Grid/SuitVelvet"]
+layout_mode = 2
+text = "BUY (50)"
+
+[node name="SuitSilk" type="VBoxContainer" parent="Panel/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Panel/Grid/SuitSilk"]
+layout_mode = 2
+text = "Silk Sack (+25% Bag Capacity)"
+
+[node name="Btn" type="Button" parent="Panel/Grid/SuitSilk"]
+layout_mode = 2
+text = "BUY (80)"
+
+[node name="SuitSprinter" type="VBoxContainer" parent="Panel/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Panel/Grid/SuitSprinter"]
+layout_mode = 2
+text = "Lockdown Sprinter (+10% Escape Speed)"
+
+[node name="Btn" type="Button" parent="Panel/Grid/SuitSprinter"]
+layout_mode = 2
+text = "BUY (120)"
+
+[node name="GadgetSmoke" type="VBoxContainer" parent="Panel/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Panel/Grid/GadgetSmoke"]
+layout_mode = 2
+text = "Smoke Pellet (Blinds Guards)"
+
+[node name="Btn" type="Button" parent="Panel/Grid/GadgetSmoke"]
+layout_mode = 2
+text = "BUY (40)"
+
+[node name="GadgetCuff" type="VBoxContainer" parent="Panel/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Panel/Grid/GadgetCuff"]
+layout_mode = 2
+text = "Extra Zip-Tie (+1 Free Cuff)"
+
+[node name="Btn" type="Button" parent="Panel/Grid/GadgetCuff"]
+layout_mode = 2
+text = "BUY (60)"
+
+[node name="GadgetMarbles" type="VBoxContainer" parent="Panel/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Panel/Grid/GadgetMarbles"]
+layout_mode = 2
+text = "Bag of Marbles (Trips Heavy Guards)"
+
+[node name="Btn" type="Button" parent="Panel/Grid/GadgetMarbles"]
+layout_mode = 2
+text = "BUY (70)"
+
+[node name="GadgetFaraday" type="VBoxContainer" parent="Panel/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Panel/Grid/GadgetFaraday"]
+layout_mode = 2
+text = "Faraday Pouch (+5s Radar Delay)"
+
+[node name="Btn" type="Button" parent="Panel/Grid/GadgetFaraday"]
+layout_mode = 2
+text = "BUY (100)"
+
+[node name="BtnClose" type="Button" parent="Panel"]
+custom_minimum_size = Vector2(140, 36)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -70.0
+offset_top = -48.0
+offset_right = 70.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "EXIT HIDEOUT"

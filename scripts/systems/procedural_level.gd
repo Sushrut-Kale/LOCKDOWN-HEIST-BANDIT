@@ -236,13 +236,11 @@ func _process(delta: float) -> void:
 	if player and not lockdown_manager.casing_active:
 		camera.global_position = lerp(camera.global_position, player.global_position, 12.0 * delta)
 		
-	# Screen shake
-	if shake_timer > 0.0:
-		shake_timer -= delta
-		var offset = Vector2(randf_range(-shake_intensity, shake_intensity), randf_range(-shake_intensity, shake_intensity))
-		camera.offset = offset
-	else:
-		camera.offset = Vector2.ZERO
+	# Trauma-based Screen Shake via JuiceManager
+	var shake_t = JuiceManager.get_shake_transform()
+	camera.offset = shake_t["offset"]
+	camera.rotation = shake_t["rotation"]
+
 
 	# Update HUD Timer
 	var sec = int(GameManager.level_elapsed_seconds)

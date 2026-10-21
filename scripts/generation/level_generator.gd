@@ -6,15 +6,24 @@ const LevelValidator = preload("res://scripts/generation/level_validator.gd")
 const CELL_SIZE: int = 64
 
 
+static func get_grid_width(fl: int) -> int:
+	var w = clampi(15 + 2 * (fl - 1), 15, 45)
+	if w % 2 == 0:
+		w += 1
+	return w
+
+static func get_guard_count(fl: int) -> int:
+	return clampi(2 + int(floor(0.12 * pow(fl - 1, 1.5))), 2, 26)
+
 func generate(floor_num: int, base_seed: int) -> Dictionary:
 	return generate_level(floor_num, base_seed)
 
 # Generates complete level dictionary data with guaranteed dual-graph validation
 static func generate_level(floor_num: int, base_seed: int) -> Dictionary:
-
-	var width = GameManager.get_grid_width(floor_num)
+	var width = get_grid_width(floor_num)
 	var height = width # Square maze
-	var guard_count = GameManager.get_guard_count(floor_num)
+	var guard_count = get_guard_count(floor_num)
+
 
 	for attempt in range(25):
 		var curr_seed = base_seed + attempt * 1013

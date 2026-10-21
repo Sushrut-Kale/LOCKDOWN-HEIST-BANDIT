@@ -119,12 +119,13 @@ func _test_scripted_fairness_rules() -> void:
 	_record_result("FAIRNESS", "Wall Occludes LOS Inside Cone", detection_blocked, "Raycast blocked by Layer 1 wall")
 	
 	# Subtest 2B: Clear LOS in cone -> fills suspicion
-	wall.position = Vector2(9999, 9999) # Move wall away
+	wall.set_collision_layer_value(1, false)
 	guard.suspicion_meter = 0.0
 	for i in range(10):
 		guard._check_player_vision(0.05)
 	var suspicion_fills = (guard.suspicion_meter > 0.3)
 	_record_result("FAIRNESS", "Clear LOS Fills Suspicion", suspicion_fills, "Suspicion meter = %.2f" % guard.suspicion_meter)
+
 	
 	# Subtest 2C: Front interact knockout is rejected
 	player.position = Vector2(240, 200) # Directly in front of guard

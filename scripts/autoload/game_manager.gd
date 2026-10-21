@@ -118,7 +118,8 @@ func _on_level_escaped() -> void:
 	SaveManager.add_banked_coins(level_coins_collected)
 	SaveManager.record_level_clear(current_floor, stars)
 	
-	get_tree().change_scene_to_file("res://scenes/ui/LevelComplete.tscn")
+	get_tree().change_scene_to_file.call_deferred("res://scenes/ui/LevelComplete.tscn")
+
 
 func get_par_time(fl: int) -> float:
 	return 45.0 + float(fl) * 5.0

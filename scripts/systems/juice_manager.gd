@@ -46,9 +46,10 @@ func _setup_transition_overlay() -> void:
 	rect.modulate.a = 0.0
 	transition_overlay.add_child(rect)
 
-func add_trauma(amount: float) -> void:
+func add_trauma(amount: float, _duration: float = 0.0) -> void:
 	var intensity_setting = SaveManager.screen_shake_intensity if is_instance_valid(SaveManager) else 1.0
 	current_trauma = clampf(current_trauma + amount * intensity_setting, 0.0, 1.0)
+
 
 func get_shake_transform() -> Dictionary:
 	var shake = current_trauma * current_trauma

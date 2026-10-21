@@ -1,7 +1,11 @@
 # tests/verify_project.gd
 extends SceneTree
 
+const LevelGenerator = preload("res://scripts/generation/level_generator.gd")
+const LevelValidator = preload("res://scripts/generation/level_validator.gd")
+
 func _init() -> void:
+
 	print("====================================================")
 	print("  LOCKDOWN HEIST: BANDIT — AUTOMATED TEST SUITE    ")
 	print("====================================================")
@@ -95,22 +99,25 @@ func _init() -> void:
 	var total_tested = 100
 	var pass_count = 0
 	var total_time_ms = 0.0
+	var gen = LevelGenerator.new()
+	var val = LevelValidator.new()
 	
 	for i in range(total_tested):
 		var floor_num = (i % 30) + 1
 		var seed_val = 100000 + i * 9973
 		
 		var t0 = Time.get_ticks_usec()
-		var level_data = LevelGenerator.generate_level(floor_num, seed_val)
+		var level_data = gen.generate(floor_num, seed_val)
 		var t_elapsed_ms = (Time.get_ticks_usec() - t0) / 1000.0
 		total_time_ms += t_elapsed_ms
 		
 		# Validate Graph A & Graph B
-		var res = LevelValidator.validate_level_data(
+		var res = val.validate_level_data(
 			level_data["width"], level_data["height"], level_data["walls"],
 			level_data["entrance"], level_data["exit_door"], level_data["master_key"],
 			level_data["shutters"], level_data["vents"]
 		)
+
 		
 		if res["valid"]:
 			pass_count += 1

@@ -2,10 +2,14 @@
 class_name LevelValidator
 extends RefCounted
 
-# Dual-Graph Lock-Proof Validator:
-# Evaluates Graph A (Infiltration) and Graph B (Lockdown) using BFS grid pathfinding.
+func validate(grid_w: int, grid_h: int, walls: Dictionary,
+	entrance: Vector2i, exit_door: Vector2i, key_pos: Vector2i,
+	shutters: Array, vents: Array) -> Dictionary:
+	return validate_level_data(grid_w, grid_h, walls, entrance, exit_door, key_pos, shutters, vents)
 
+# Dual-Graph Lock-Proof Validator:
 static func validate_level_data(grid_w: int, grid_h: int, walls: Dictionary,
+
 	entrance: Vector2i, exit_door: Vector2i, key_pos: Vector2i,
 	shutters: Array, vents: Array) -> Dictionary:
 	

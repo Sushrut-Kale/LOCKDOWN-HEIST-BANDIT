@@ -2,7 +2,9 @@
 class_name ProceduralLevel
 extends Node2D
 
+const LevelGenerator = preload("res://scripts/generation/level_generator.gd")
 const CELL_SIZE: int = 64
+
 
 @onready var walls_node: Node2D = $Walls
 @onready var floors_node: Node2D = $Floors

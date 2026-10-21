@@ -2,10 +2,16 @@
 class_name LevelGenerator
 extends RefCounted
 
+const LevelValidator = preload("res://scripts/generation/level_validator.gd")
 const CELL_SIZE: int = 64
+
+
+func generate(floor_num: int, base_seed: int) -> Dictionary:
+	return generate_level(floor_num, base_seed)
 
 # Generates complete level dictionary data with guaranteed dual-graph validation
 static func generate_level(floor_num: int, base_seed: int) -> Dictionary:
+
 	var width = GameManager.get_grid_width(floor_num)
 	var height = width # Square maze
 	var guard_count = GameManager.get_guard_count(floor_num)

@@ -131,13 +131,39 @@ func _generate_and_spawn() -> void:
 		for wp in g_info["waypoints"]:
 			wps.append(Vector2(wp.x * CELL_SIZE + 32, wp.y * CELL_SIZE + 32))
 		gd.patrol_waypoints = wps
-		guards_node.add_child(gd)
+	# Set camera limits to maze bounds
+	camera.limit_left = 0
+	camera.limit_top = 0
+	camera.limit_right = int(maze_w_px)
+	camera.limit_bottom = int(maze_h_px)
+	
+	# Enable Y-sorting
+	y_sort_enabled = true
+	walls_node.y_sort_enabled = true
+	objects_node.y_sort_enabled = true
+	guards_node.y_sort_enabled = true
 
-	# 10. Floor 1 Contextual Chalk Callouts
+	# 10. Spawn Fuse Boxes
+	var fuse_scene = load("res://scenes/objects/FuseBox.tscn")
+	for f_pos in data.get("fuse_boxes", []):
+		var fb = fuse_scene.instantiate()
+		fb.position = Vector2(f_pos.x * CELL_SIZE + 32, f_pos.y * CELL_SIZE + 32)
+		objects_node.add_child(fb)
+
+	# 11. Spawn Treasure Gem in far dead end
+	if data["coins"].size() > 5:
+		var gem_scene = load("res://scenes/objects/TreasureGem.tscn")
+		var gem = gem_scene.instantiate()
+		var gem_pos = data["coins"][data["coins"].size() - 1]
+		gem.position = Vector2(gem_pos.x * CELL_SIZE + 32, gem_pos.y * CELL_SIZE + 32)
+		objects_node.add_child(gem)
+
+	# 12. Floor 1 Contextual Chalk Callouts
 	if fl == 1:
 		_spawn_chalk_hints(data)
 
-	# 11. Initialize Casing Mode with centered camera
+	# 13. Initialize Casing Mode with centered camera
+
 	lockdown_manager.init_casing(maze_center, Vector2(maze_w_px, maze_h_px))
 
 	_update_hud()

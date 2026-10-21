@@ -21,6 +21,8 @@ Events="*res://scripts/autoload/events.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
 GameManager="*res://scripts/autoload/game_manager.gd"
+JuiceManager="*res://scripts/systems/juice_manager.gd"
+
 
 [display]
 

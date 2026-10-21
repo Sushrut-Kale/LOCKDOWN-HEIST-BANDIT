@@ -1,6 +1,9 @@
 # scripts/systems/juice_manager.gd
 extends Node
 
+const GameConfig = preload("res://scripts/systems/game_config.gd")
+
+
 var current_trauma: float = 0.0
 var trauma_decay: float = 1.4
 var max_shake_offset: float = 18.0

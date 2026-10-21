@@ -2,6 +2,9 @@
 class_name GuardBase
 extends CharacterBody2D
 
+const GameConfig = preload("res://scripts/systems/game_config.gd")
+
+
 @export var archetype: String = "rookie" # "rookie", "veteran", "radio", "k9", "heavy", "drone"
 @export var patrol_waypoints: Array[Vector2] = []
 

@@ -2,6 +2,9 @@
 class_name BanditPlayer
 extends CharacterBody2D
 
+const GameConfig = preload("res://scripts/systems/game_config.gd")
+
+
 @export var is_hidden: bool = false
 
 var move_state: String = "walk" # "sneak", "walk", "sprint"

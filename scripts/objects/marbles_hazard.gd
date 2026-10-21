@@ -2,6 +2,9 @@
 class_name MarblesHazard
 extends Area2D
 
+const GameConfig = preload("res://scripts/systems/game_config.gd")
+
+
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	# Draw little scattered blue/white marbles

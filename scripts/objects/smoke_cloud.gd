@@ -2,6 +2,9 @@
 class_name SmokeCloud
 extends Area2D
 
+const GameConfig = preload("res://scripts/systems/game_config.gd")
+
+
 var lifetime: float = GameConfig.SMOKE_CLOUD_DURATION
 var cloud_radius: float = 85.0
 

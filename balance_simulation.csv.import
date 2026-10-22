@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://buyecx0ashsei"
+
+[deps]
+
+files=["res://balance_simulation.Seed.translation", "res://balance_simulation.GridSize.translation", "res://balance_simulation.WalkableTiles.translation", "res://balance_simulation.Guards.translation", "res://balance_simulation.GuardDensityPer100.translation", "res://balance_simulation.PathToKey.translation", "res://balance_simulation.PathToExit.translation", "res://balance_simulation.CoinsPlaced.translation", "res://balance_simulation.EstTimeToKeySec.translation", "res://balance_simulation.EstTimeToExitSec.translation"]
+
+source_file="res://balance_simulation.csv"
+dest_files=["res://balance_simulation.Seed.translation", "res://balance_simulation.GridSize.translation", "res://balance_simulation.WalkableTiles.translation", "res://balance_simulation.Guards.translation", "res://balance_simulation.GuardDensityPer100.translation", "res://balance_simulation.PathToKey.translation", "res://balance_simulation.PathToExit.translation", "res://balance_simulation.CoinsPlaced.translation", "res://balance_simulation.EstTimeToKeySec.translation", "res://balance_simulation.EstTimeToExitSec.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

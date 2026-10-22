@@ -19,6 +19,12 @@ var sweep_angle: float = 0.0
 func _ready() -> void:
 	AudioManager.play_menu_music()
 	
+	if SaveManager.has_interrupted_run():
+		var fl = SaveManager.interrupted_run.get("floor", 1)
+		btn_campaign.text = "RESUME HEIST (FLOOR %02d)" % fl
+	else:
+		btn_campaign.text = "PLAY CAMPAIGN (FLOOR %02d)" % SaveManager.highest_floor
+
 	btn_campaign.pressed.connect(_on_campaign_pressed)
 	btn_daily.pressed.connect(_on_daily_pressed)
 	btn_custom.pressed.connect(_on_custom_pressed)
@@ -28,6 +34,20 @@ func _ready() -> void:
 	btn_quit.pressed.connect(_on_quit_pressed)
 	
 	custom_seed_dialog.confirmed.connect(_on_custom_seed_confirmed)
+	
+	_check_first_touch_tutorial()
+
+func _check_first_touch_tutorial() -> void:
+	if not SaveManager.seen_tutorial and DisplayServer.is_touchscreen_available():
+		SaveManager.seen_tutorial = true
+		SaveManager.save_game()
+		call_deferred("_launch_tutorial_modal")
+
+func _launch_tutorial_modal() -> void:
+	var modal = load("res://scenes/ui/HowToPlayModal.tscn").instantiate()
+	add_child(modal)
+	if modal.has_method("open_tab"):
+		modal.open_tab(4) # Tab 5: Controls
 
 func _process(delta: float) -> void:
 	# Live animated sweeping flashlight beams on main menu
@@ -39,7 +59,10 @@ func _process(delta: float) -> void:
 
 func _on_campaign_pressed() -> void:
 	AudioManager.play_sfx("ui_click")
-	GameManager.start_campaign(SaveManager.highest_floor)
+	if SaveManager.has_interrupted_run():
+		GameManager.resume_interrupted_run()
+	else:
+		GameManager.start_campaign(SaveManager.highest_floor)
 
 func _on_daily_pressed() -> void:
 	AudioManager.play_sfx("ui_click")
@@ -70,4 +93,19 @@ func _on_settings_pressed() -> void:
 	add_child(modal)
 
 func _on_quit_pressed() -> void:
-	get_tree().quit()
+	show_quit_confirm_dialog()
+
+func show_quit_confirm_dialog() -> void:
+	var existing = get_node_or_null("QuitConfirmDialog")
+	if existing:
+		existing.popup_centered()
+		return
+	var dlg = ConfirmationDialog.new()
+	dlg.name = "QuitConfirmDialog"
+	dlg.title = "ABORT HEIST?"
+	dlg.dialog_text = "Exit Lockdown Heist: Bandit back to Android home screen?"
+	dlg.ok_button_text = "Exit"
+	dlg.cancel_button_text = "Stay"
+	dlg.confirmed.connect(func(): get_tree().quit())
+	add_child(dlg)
+	dlg.popup_centered()

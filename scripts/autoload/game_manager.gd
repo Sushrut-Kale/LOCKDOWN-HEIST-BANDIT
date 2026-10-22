@@ -47,23 +47,124 @@ func _setup_input_map() -> void:
 			ev.physical_keycode = key
 			InputMap.action_add_event(action, ev)
 
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
+			# Duck or mute audio to respect OS audio focus
+			var master_idx = AudioServer.get_bus_index("Master")
+			if master_idx >= 0:
+				AudioServer.set_bus_mute(master_idx, true)
+			
+			# Pause in-game action & persist mid-level progress
+			if is_in_level() and not get_tree().paused:
+				_pause_and_save_run()
+		
+		NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_APPLICATION_FOCUS_IN:
+			var master_idx = AudioServer.get_bus_index("Master")
+			if master_idx >= 0:
+				AudioServer.set_bus_mute(master_idx, false)
+			# Refresh volume
+			SaveManager.update_audio_buses()
+
+		NOTIFICATION_WM_GO_BACK_REQUEST:
+			handle_back_request()
+
+func handle_back_request() -> void:
+	var root = get_tree().root
+	var modals = ["SettingsModal", "HowToPlayModal", "HideoutModal", "PauseMenu", "ConfirmationDialog"]
+	for m_name in modals:
+		var found = root.find_child(m_name, true, false)
+		if found and is_instance_valid(found) and found.is_inside_tree() and found.visible:
+			if found is ConfirmationDialog:
+				found.hide()
+			elif found.has_method("_on_resume"):
+				found._on_resume()
+			else:
+				found.queue_free()
+			return
+
+	# If in level, toggle pause
+	if is_in_level():
+		var level = get_tree().current_scene
+		if level and level.has_method("_on_pause_button_pressed"):
+			level._on_pause_button_pressed()
+		return
+
+	# If on MainMenu, show quit confirm dialog
+	var current = get_tree().current_scene
+	if current and current.name == "MainMenu":
+		if current.has_method("show_quit_confirm_dialog"):
+			current.show_quit_confirm_dialog()
+		else:
+			_show_fallback_quit_dialog()
+
+func _show_fallback_quit_dialog() -> void:
+	var dlg = ConfirmationDialog.new()
+	dlg.title = "QUIT HEIST?"
+	dlg.dialog_text = "Are you sure you want to exit the game?"
+	dlg.ok_button_text = "Quit"
+	dlg.cancel_button_text = "Stay"
+	dlg.confirmed.connect(func(): get_tree().quit())
+	get_tree().root.add_child(dlg)
+	dlg.popup_centered()
+
+func is_in_level() -> bool:
+	var cur = get_tree().current_scene
+	return cur != null and cur.name == "ProceduralLevel"
+
+func _pause_and_save_run() -> void:
+	# Persist floor, seed, coins so Android process kill is not a wipe
+	SaveManager.save_interrupted_run(
+		current_floor,
+		current_seed,
+		level_coins_collected,
+		{"suit": SaveManager.equipped_suit, "gadget": SaveManager.equipped_gadget},
+		is_daily
+	)
+	
+	# Open PauseMenu if in level
+	var level = get_tree().current_scene
+	if level and level.has_node("HUD"):
+		var hud = level.get_node("HUD")
+		if not hud.has_node("PauseMenu"):
+			var pause_modal = load("res://scenes/ui/PauseMenu.tscn").instantiate()
+			hud.add_child(pause_modal)
+
+func resume_interrupted_run() -> void:
+	if not SaveManager.has_interrupted_run():
+		return
+	var r = SaveManager.interrupted_run
+	current_floor = r.get("floor", 1)
+	current_seed = r.get("seed", 1337)
+	is_daily = r.get("is_daily", false)
+	level_coins_collected = r.get("coins", 0)
+	var loadout = r.get("loadout", {})
+	if loadout.has("suit"):
+		SaveManager.equipped_suit = loadout["suit"]
+	if loadout.has("gadget"):
+		SaveManager.equipped_gadget = loadout["gadget"]
+	
+	_load_game_scene()
 
 func start_campaign(floor_num: int = 1) -> void:
+	SaveManager.clear_interrupted_run()
 	current_floor = floor_num
 	is_daily = false
 	current_seed = randi() % 1000000 + current_floor * 777
 	_load_game_scene()
 
 func start_daily_heist() -> void:
+	SaveManager.clear_interrupted_run()
 	is_daily = true
 	current_floor = 1
 	var d = Time.get_date_dict_from_system()
 	daily_date_str = "%04d-%02d-%02d" % [d["year"], d["month"], d["day"]]
-	# Deterministic seed from date
+	# Deterministic seed from local date
 	current_seed = hash(daily_date_str) & 0x7FFFFFFF
 	_load_game_scene()
 
 func start_custom_seed(seed_val: int, floor_num: int = 1) -> void:
+	SaveManager.clear_interrupted_run()
 	is_daily = false
 	current_floor = floor_num
 	current_seed = seed_val
@@ -78,6 +179,9 @@ func next_floor() -> void:
 	_load_game_scene()
 
 func _load_game_scene() -> void:
+	# Keep screen active while playing
+	DisplayServer.screen_set_keep_on(true)
+	
 	# Reset state
 	level_coins_collected = 0
 	level_total_coins = 0
@@ -100,11 +204,17 @@ func _process(delta: float) -> void:
 		level_elapsed_seconds += delta
 
 func _on_player_caught(culprit: String) -> void:
+	DisplayServer.screen_set_keep_on(false)
+	SaveManager.clear_interrupted_run()
+	SaveManager.trigger_haptic(70)
 	caught_culprit = culprit
-	# 0.1s instant reload capability
 	get_tree().change_scene_to_file("res://scenes/ui/GameOver.tscn")
 
 func _on_level_escaped() -> void:
+	DisplayServer.screen_set_keep_on(false)
+	SaveManager.clear_interrupted_run()
+	SaveManager.trigger_haptic(50)
+	
 	# Calculate stars
 	var star_escape = true
 	var star_coins = (float(level_coins_collected) / float(max(1, level_total_coins))) >= 0.70
@@ -120,7 +230,6 @@ func _on_level_escaped() -> void:
 	
 	get_tree().change_scene_to_file.call_deferred("res://scenes/ui/LevelComplete.tscn")
 
-
 func get_par_time(fl: int) -> float:
 	return 45.0 + float(fl) * 5.0
 
@@ -133,8 +242,6 @@ func get_grid_width(fl: int) -> int:
 func get_guard_count(fl: int) -> int:
 	return clampi(2 + int(floor(0.12 * pow(fl - 1, 1.5))), 2, 26)
 
-# Weight slowdown for greed bag
-# Light 0-14, Medium 15-34 (-6%), Heavy 35+ (-12%)
 func get_bag_speed_multiplier() -> float:
 	var c = level_coins_collected
 	if SaveManager.equipped_suit == "silk_sack":

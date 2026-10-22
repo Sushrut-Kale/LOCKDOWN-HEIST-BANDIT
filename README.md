@@ -24,13 +24,37 @@ Every floor is divided into two distinct, tension-filled phases:
 
 ---
 
+## 📱 Android & Mobile Features (Prompt #3 Ship Pass)
+
+- **Native Thumb Touch Scheme (`MobileTouchControls`):**
+  - **Dynamic Left Virtual Joystick:** Thumb-down spawns the joystick base under the finger clamped within safe area. Inner ring sneaks (0 px noise ring), mid walks, outer ring or dedicated sprint button runs.
+  - **Adaptive Right Context Button:** Automatically swaps icon and text depending on nearby entities: **Knockout** (Tap), **Pickpocket** (Hold 0.6s with visual radial fill), **Zip-Tie Cuff**, **Hide in Locker**, or **Vent Crawl**.
+  - **Coin Toss & Gadget:** Quick-throw distraction coins and activate smoke pellets/marbles directly from the right thumb cluster.
+  - **Opposite-Hand Support:** Invert layout in Settings (Joystick Right, Buttons Left).
+- **Display Cutout / Notch Safe Area:**
+  - Full safe-area boundary inset via `DisplayServer.get_display_safe_area()`.
+  - Built-in notch simulation toggle in Settings (**None**, **Left Notch**, **Right Notch**, **Cutout**) for desk testing.
+- **Robust Android Lifecycle & Audio Focus:**
+  - Game automatically pauses tree and preserves mid-run state when losing focus (Home button, app switcher, incoming phone calls).
+  - Audio stems cleanly mute/duck without losing sync upon resume.
+  - Hardware **Back** button closes modals, opens pause menu in-game, and prompts "Quit Heist?" confirm dialog on Main Menu.
+  - Keeps screen awake (`DisplayServer.screen_set_keep_on`) during levels; allows sleep on menus.
+- **Battery Saver & Thermal Budgeting:**
+  - Settings -> Quality: **High** (60 FPS, all dynamic shadows), **Medium** (caps shadow-casting lights to nearest 6 guards), **Low** (caps shadows to nearest 3 guards, reduces particles, saves battery).
+  - Visual FPS counter hidden by default on mobile.
+- **Zero Dangerous Permissions:**
+  - No `INTERNET`, `STORAGE`, `LOCATION`, `CAMERA`, `MIC`, or `AD_ID`.
+  - Only standard `android.permission.VIBRATE` for tactile pulses (respects Settings toggle).
+
+---
+
 ## 🕹️ Controls
 
 | Action | Keyboard / Mouse | Xbox / Gamepad | PlayStation | Mobile Touch |
 |---|---|---|---|---|
 | **Move** | `W / A / S / D` or Arrow Keys | Left Analog Stick | Left Analog Stick | Dynamic Left Virtual Joystick |
 | **Sprint** | `Shift` (Hold) | Right Trigger `RT` | Right Trigger `R2` | Joystick Outer Drag / Sprint Button |
-| **Interact / Bonk / Pickpocket** | `E` (Tap bonk / Hold pickpocket) | `X` Button | `Square` Button | Context Action Button |
+| **Interact / Bonk / Pickpocket** | `E` (Tap bonk / Hold pickpocket) | `X` Button | `Square` Button | Context Action Button (Adaptive) |
 | **Coin Toss (Distraction)** | `Q` | `Y` Button | `Triangle` Button | Coin Toss Touch Button |
 | **Use Gadget** | `F` | `B` Button | `Circle` Button | Gadget Touch Button |
 | **Pause / Resume** | `Escape` | `Start` / Menu | `Options` | Pause Icon Top-Right |
@@ -43,41 +67,31 @@ Every floor is divided into two distinct, tension-filled phases:
 
 ```
 res://
-├── assets/                  # Audio (SFX & Dual-stem music), Living Blueprint tiles, UI portraits
+├── assets/
+│   ├── audio/               # SFX & Dual-stem music (explore vs lockdown)
+│   ├── store/
+│   │   ├── android/         # Adaptive launcher foreground/background, icons, splash card
+│   │   └── play/            # 1024x500 Feature graphic, screenshots, Play listing kit
+│   ├── tiles/               # Living Blueprint tileset and occluders
+│   └── ui/                  # Touch icons, HUD icons, portraits
 ├── scenes/
 │   ├── guards/              # GuardBase.tscn (Vision cones, PointLight2D shadows, raycast LOS)
 │   ├── objects/             # MarblesHazard, SmokeCloud, FuseBox, TreasureGem, Coin, Key, Shutter
 │   ├── player/              # BanditPlayer.tscn (Physics, state machine, stamina, bag tiers)
-│   ├── ui/                  # MainMenu, LoadingScreen, PauseMenu, LevelComplete, GameOver, Modals
+│   ├── ui/                  # MainMenu, LoadingScreen, PauseMenu, MobileTouchControls, Modals
 │   └── world/               # ProceduralLevel.tscn (TileMapLayer, CanvasModulate, Y-sort, HUD)
 ├── scripts/
 │   ├── autoload/            # Events (Event Bus), GameManager, AudioManager, SaveManager
 │   ├── generation/          # level_generator.gd & level_validator.gd (Dual-Graph A*/BFS validation)
 │   ├── guards/              # guard_base.gd (Patrol, Search, Chase, Radio, K9 scent aura)
 │   ├── player/              # bandit_player.gd (Movement, bonk, pickpocket, gadgets)
-│   └── systems/             # game_config.gd (Central config single source of truth), juice_manager.gd
-├── tests/                   # verify_project.gd & playtest_harness.tscn (Automated test suites)
-└── tools/                   # balance_sim.gd (300-floor difficulty balance simulator)
+│   └── systems/             # game_config.gd, juice_manager.gd, lockdown_manager.gd
+├── tests/                   # verify_project.gd, playtest_harness.tscn, android_readiness.gd, touch_layout_probe.gd
+└── tools/
+    ├── android/             # export_android.ps1, make_keystore.ps1
+    ├── android_perf_probe.gd # 8-second Floor 12 and 25 performance monitor logger
+    └── balance_sim.gd       # 300-floor difficulty balance simulator
 ```
-
-### 1. Centralized Single-Source Configuration (`scripts/systems/game_config.gd`)
-All gameplay constants are strictly defined in `GameConfig`:
-- **Bandit Speeds:** Sneak (110 px/s), Walk (160 px/s), Sprint (240 px/s), Max Stamina (4.0s).
-- **Vision Math:** Guard cone angle (70°), range (260 px), investigation grace time (0.45s), alert speed multiplier (1.30×).
-- **Noise Radii:** Coin toss (180 px), sprint footstep (120 px), fuse box flip (220 px).
-- **Bag Slowdown:** Light (<15 coins, 1.0×), Medium (15–34 coins, 0.94×), Heavy (35+ coins, 0.88×).
-
-### 2. Living Blueprint Aesthetics & Lighting
-- **CanvasModulate:** Ambient blue-dark tone (`#12263F`), smoothly transitioning to an intense crimson tint (`#3B101A`) during active alarm lockdowns.
-- **Dynamic 2D Lighting:** Smooth flashlight cones using `PointLight2D` with hardware shadow occluders on wall tiles, preventing guards from seeing through walls.
-- **Personal Player Ambience:** Bandit carries a subtle point light ensuring high character contrast against dark tile floors.
-- **Glassmorphic Blueprint HUD:** Translucent blueprint top-bar displaying real-time loot counters, bag weight icons, zip-ties, equipped gadget charges, and floor stats.
-
-### 3. Commercial Game Feel & "Juice" (`scripts/systems/juice_manager.gd`)
-- **Hitstop:** 0.12s on knockouts, 0.15s on key pickup, 0.25s on capture.
-- **Camera Shake:** Non-linear trauma-squared falloff, scaled by user settings.
-- **Comic Speech Bubbles:** Rate-limited reactions above guards (`?` "Hm?", `!` "There!", "Must be rats...", "Officer down!").
-- **Sample-Locked Audio Ducking:** Adaptive music bus ducking under siren alerts and victory fanfares.
 
 ---
 
@@ -85,47 +99,57 @@ All gameplay constants are strictly defined in `GameConfig`:
 
 All tests run fully automated headlessly or windowed.
 
-### 1. Headless Structural & Seed Verification
-Validates 24 audio files, 17 UI & world scenes, and executes 100 consecutive procedural seeds through dual-graph solvability checks:
+### 1. Verification Suite (Scenes, Audio & 100 Seeds)
 ```bash
 godot --headless -s tests/verify_project.gd
 ```
 
 ### 2. Runtime Playtest Harness (20/20 Test Cases)
-Simulates real physics bot navigation across Floors 1, 3, 5, 8, 12, 18, and 25 using `move_and_slide()`, audits all UI menu buttons, verifies stealth fairness rules (LOS wall occlusion, suspicion meters, rear bonk arc, pickpocketing), and checks node memory stability:
+Simulates bot physics navigation across Floors 1–25, audits UI buttons, verifies stealth fairness rules, and checks node memory stability:
 ```bash
 godot --headless tests/playtest_harness.tscn
 ```
 
-### 3. 300-Floor Balance Simulation
-Simulates 300 procedural layouts across Floors 1–30, measuring path lengths, guard densities per 100 walkable tiles, and exporting a CSV:
+### 3. Android Readiness Audit
+Verifies export presets, zero dangerous permissions, icon/splash presence, MobileTouchControls scene, quality settings, lifecycle handlers, and security rules:
 ```bash
-godot --headless -s tools/balance_sim.gd
+godot --headless -s tests/android_readiness.gd
+```
+
+### 4. Touch Layout & Safe Area Probe
+Validates all touch button targets (>= 48px) and bounds across 1920×1080, 2400×1080, and 1280×720 viewports:
+```bash
+godot --headless -s tests/touch_layout_probe.gd
+```
+
+### 5. Android Performance Logger
+Measures FPS, draw calls, 2D object count, and static memory on Floors 12 and 25:
+```bash
+godot --headless -s tools/android_perf_probe.gd
 ```
 
 ---
 
-## 🎨 Asset Swap Guide
+## 📦 Android Export & Deployment Guide
 
-The project is structured to make swapping placeholder or procedural assets with Kenney CC0 or custom production assets frictionless:
+For complete instructions on building the Android APK or Google Play AAB, see [`docs/ANDROID_BUILD.md`](docs/ANDROID_BUILD.md).
 
-1. **Character Sprites:**
-   - Bandit: Replace `assets/sprites/bandit_raccoon.png` (or frames) with 64×64 top-down sprites.
-   - Guards: Replace `assets/sprites/guard_police.png` with archetype variations (Rookie, Veteran, Radio, K9, Heavy).
-2. **Tilemap Art:**
-   - Wall and Floor tiles: Update `assets/tiles/tileset_blueprint.png` (64×64 grid). The `TileMapLayer` will automatically inherit the new artwork while preserving physics collisions and light occluders.
-3. **Audio & Music Stems:**
-   - Dual-stem Explore & Lockdown music: Drop new `.wav` / `.ogg` files into `assets/audio/music/` using matching names (`stem_explore.wav`, `stem_lockdown.wav`).
-   - Foley & Sound Effects: Replace files under `assets/audio/sfx/` (e.g., `coin_pickup.wav`, `siren_alarm.wav`, `bonk_takedown.wav`).
+### Quick Commands:
 
----
-
-## 🚀 How to Run the Game
-
-1. Download or clone this repository:
-   ```bash
-   git clone https://github.com/Sushrut-Kale/LOCKDOWN-HEIST-BANDIT.git
+1. **Generate Local Cryptographic Release Keystore:**
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File tools/android/make_keystore.ps1
    ```
-2. Open **Godot Engine 4.3+ (or 4.7.1)**.
-3. Click **Import**, navigate to the repository directory, and select `project.godot`.
-4. Press **F5** (or click the Play button in the top-right corner) to launch the Main Menu!
+
+2. **Export APK and Google Play AAB:**
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File tools/android/export_android.ps1 -Target all
+   ```
+
+3. **Install on Phone via ADB:**
+   ```powershell
+   adb install -r build/android/LockdownHeistBandit-0.3.0.apk
+   adb shell monkey -p com.sushrutkale.lockdownheist 1
+   ```
+
+See [`docs/PRIVACY.md`](docs/PRIVACY.md) and [`assets/store/play/LISTING.md`](assets/store/play/LISTING.md) for Google Play Store packaging assets and data safety documentation.

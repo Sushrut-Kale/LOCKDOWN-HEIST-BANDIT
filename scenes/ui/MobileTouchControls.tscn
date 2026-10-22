@@ -167,12 +167,12 @@ ignore_texture_size = true
 stretch_mode = 5
 
 [node name="BtnPause" type="TextureButton" parent="."]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
-offset_left = 1830.0
+offset_left = 1820.0
 offset_top = 24.0
-offset_right = 1886.0
-offset_bottom = 80.0
+offset_right = 1884.0
+offset_bottom = 88.0
 texture_normal = ExtResource("9_pau")
 ignore_texture_size = true
 stretch_mode = 5

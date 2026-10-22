@@ -153,7 +153,7 @@ func update_audio_buses() -> void:
 func trigger_haptic(duration_ms: int = 40) -> void:
 	if not haptics_enabled:
 		return
-	if DisplayServer.has_feature(DisplayServer.FEATURE_VIBRATE) or OS.has_feature("android"):
+	if OS.has_feature("android") or OS.has_feature("mobile"):
 		Input.vibrate_handheld(duration_ms)
 
 # Performance & Quality tiers

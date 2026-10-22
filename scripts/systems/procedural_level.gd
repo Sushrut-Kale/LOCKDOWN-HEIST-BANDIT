@@ -257,9 +257,42 @@ func _process(delta: float) -> void:
 	camera.rotation = shake_t["rotation"]
 
 
+	# Dynamic 2D shadow budgeting for thermals/battery
+	_update_guard_shadow_budget(delta)
+
 	# Update HUD Timer
 	var sec = int(GameManager.level_elapsed_seconds)
 	lbl_timer.text = "%02d:%02d" % [sec / 60, sec % 60]
+
+var _shadow_budget_timer: float = 0.0
+
+func _update_guard_shadow_budget(delta: float) -> void:
+	_shadow_budget_timer += delta
+	if _shadow_budget_timer < 0.25:
+		return
+	_shadow_budget_timer = 0.0
+	
+	if player == null or not is_instance_valid(player):
+		return
+		
+	var guards = get_tree().get_nodes_in_group("guards")
+	if guards.size() <= 3:
+		return
+		
+	var max_shadows = SaveManager.get_max_shadow_casting_guards()
+	var p_pos = player.global_position
+	
+	# Sort guards by distance to player
+	guards.sort_custom(func(a, b):
+		return p_pos.distance_squared_to(a.global_position) < p_pos.distance_squared_to(b.global_position)
+	)
+	
+	for i in range(guards.size()):
+		var g = guards[i]
+		if g and is_instance_valid(g) and g.has_node("LightCone"):
+			var lc = g.get_node("LightCone") as PointLight2D
+			if lc:
+				lc.shadow_enabled = (i < max_shadows)
 
 func _on_casing_phase_ended() -> void:
 	var tw = create_tween()

@@ -16,7 +16,7 @@ signal pause_requested
 @onready var btn_gadget: TextureButton = $ActionCluster/BtnGadget
 @onready var gadget_pips: Label = $ActionCluster/BtnGadget/Pips
 @onready var btn_sprint: TextureButton = $ActionCluster/BtnSprint
-@onready var btn_pause: TextureButton = $ActionCluster/BtnPause
+@onready var btn_pause: TextureButton = $BtnPause
 
 # Multi-touch tracking
 var joystick_touch_id: int = -1

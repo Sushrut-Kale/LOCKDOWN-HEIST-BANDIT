@@ -289,14 +289,21 @@ func _update_hud() -> void:
 	lbl_cuffs.text = "CUFFS: %d" % GameManager.free_cuffs_remaining
 
 func _setup_touch_controls() -> void:
+	if not touch_controls.has_node("MobileTouchControls"):
+		var mtc_scene = load("res://scenes/ui/MobileTouchControls.tscn")
+		if mtc_scene:
+			var mtc = mtc_scene.instantiate()
+			touch_controls.add_child(mtc)
 	var mode = SaveManager.touch_controls_mode
 	if mode == "force_on":
 		touch_controls.visible = true
 	elif mode == "off":
 		touch_controls.visible = false
 	else:
-		touch_controls.visible = DisplayServer.is_touchscreen_available()
+		touch_controls.visible = DisplayServer.is_touchscreen_available() or OS.has_feature("mobile")
 
 func _on_pause_button_pressed() -> void:
+	if hud.has_node("PauseMenu"):
+		return
 	var pause_modal = load("res://scenes/ui/PauseMenu.tscn").instantiate()
 	hud.add_child(pause_modal)

@@ -173,6 +173,7 @@ func _process_interactions(delta: float) -> void:
 				interact_hold_time = 0.0
 				interact_progress.visible = false
 				target_guard.apply_pickpocket()
+				SaveManager.trigger_haptic(50)
 				Events.coin_collected.emit(GameConfig.PICKPOCKET_COINS_AWARD, GameManager.level_total_coins)
 				AudioManager.play_sfx("pickpocket_zip")
 				JuiceManager.show_speech_bubble(target_guard, "Hey! My wallet?!", Color(1.0, 0.8, 0.2))
@@ -188,8 +189,41 @@ func _process_interactions(delta: float) -> void:
 					JuiceManager.add_trauma(0.2)
 				else:
 					target_guard.apply_knockout()
+					SaveManager.trigger_haptic(45)
 					Events.coin_collected.emit(GameConfig.KNOCKOUT_COINS_AWARD, GameManager.level_total_coins)
 					JuiceManager.show_speech_bubble(target_guard, "BONK!", Color(0.6, 0.8, 1.0))
+
+func get_interaction_context() -> Dictionary:
+	if is_hidden:
+		return {"type": "hide", "label": "EXIT", "active": true, "hold_progress": 0.0}
+	
+	if target_guard != null:
+		if target_guard.current_state == "KNOCKED_OUT":
+			return {
+				"type": "cuff",
+				"label": "CUFF (%d)" % GameManager.free_cuffs_remaining,
+				"active": GameManager.free_cuffs_remaining > 0,
+				"hold_progress": 0.0
+			}
+		else:
+			return {
+				"type": "knockout",
+				"label": "BONK / STEAL",
+				"active": true,
+				"hold_progress": interact_hold_time / GameConfig.PICKPOCKET_HOLD_TIME
+			}
+			
+	var lockers = get_tree().get_nodes_in_group("lockers")
+	for l in lockers:
+		if is_instance_valid(l) and global_position.distance_to(l.global_position) < 50.0:
+			return {"type": "hide", "label": "HIDE", "active": true, "hold_progress": 0.0}
+			
+	var vents = get_tree().get_nodes_in_group("vents")
+	for v in vents:
+		if is_instance_valid(v) and global_position.distance_to(v.global_position) < 55.0:
+			return {"type": "vent", "label": "VENT", "active": GameManager.is_lockdown_active, "hold_progress": 0.0}
+			
+	return {"type": "none", "label": "ACTION", "active": false, "hold_progress": 0.0}
 
 func _find_nearest_interactable_guard() -> Node2D:
 	var guards = get_tree().get_nodes_in_group("guards")

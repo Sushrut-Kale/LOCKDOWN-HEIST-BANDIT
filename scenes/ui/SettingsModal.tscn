@@ -18,7 +18,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7)
+color = Color(0, 0, 0, 0.75)
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
@@ -27,10 +27,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -320.0
-offset_top = -240.0
-offset_right = 320.0
-offset_bottom = 240.0
+offset_left = -380.0
+offset_top = -290.0
+offset_right = 380.0
+offset_bottom = 290.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -38,86 +38,124 @@ grow_vertical = 2
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 18.0
-offset_bottom = 44.0
+offset_top = 14.0
+offset_bottom = 40.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 20
 text = "SETTINGS & ACCESSIBILITY"
 horizontal_alignment = 1
 
-[node name="VBox" type="VBoxContainer" parent="Panel"]
+[node name="Scroll" type="ScrollContainer" parent="Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 36.0
-offset_top = 60.0
-offset_right = -36.0
-offset_bottom = -55.0
+offset_left = 28.0
+offset_top = 48.0
+offset_right = -28.0
+offset_bottom = -54.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 10
 
-[node name="LblMaster" type="Label" parent="Panel/VBox"]
+[node name="VBox" type="VBoxContainer" parent="Panel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="LblMaster" type="Label" parent="Panel/Scroll/VBox"]
 layout_mode = 2
 text = "Master Volume"
 
-[node name="MasterSlider" type="HSlider" parent="Panel/VBox"]
+[node name="MasterSlider" type="HSlider" parent="Panel/Scroll/VBox"]
 layout_mode = 2
-value = 100.0
+value = 70.0
 
-[node name="LblMusic" type="Label" parent="Panel/VBox"]
+[node name="LblMusic" type="Label" parent="Panel/Scroll/VBox"]
 layout_mode = 2
 text = "Dual-Stem Music Volume"
 
-[node name="MusicSlider" type="HSlider" parent="Panel/VBox"]
+[node name="MusicSlider" type="HSlider" parent="Panel/Scroll/VBox"]
 layout_mode = 2
-value = 80.0
+value = 70.0
 
-[node name="LblSFX" type="Label" parent="Panel/VBox"]
+[node name="LblSFX" type="Label" parent="Panel/Scroll/VBox"]
 layout_mode = 2
 text = "SFX Volume"
 
-[node name="SFXSlider" type="HSlider" parent="Panel/VBox"]
+[node name="SFXSlider" type="HSlider" parent="Panel/Scroll/VBox"]
 layout_mode = 2
-value = 90.0
+value = 70.0
 
-[node name="LblShake" type="Label" parent="Panel/VBox"]
+[node name="LblQuality" type="Label" parent="Panel/Scroll/VBox"]
 layout_mode = 2
-text = "Screen Shake Intensity"
+text = "Graphics & Battery Quality"
 
-[node name="ShakeSlider" type="HSlider" parent="Panel/VBox"]
+[node name="QualityOption" type="OptionButton" parent="Panel/Scroll/VBox"]
 layout_mode = 2
-value = 100.0
 
-[node name="LblTouch" type="Label" parent="Panel/VBox"]
+[node name="LblTouch" type="Label" parent="Panel/Scroll/VBox"]
 layout_mode = 2
 text = "On-Screen Touch Controls"
 
-[node name="TouchOption" type="OptionButton" parent="Panel/VBox"]
+[node name="TouchOption" type="OptionButton" parent="Panel/Scroll/VBox"]
 layout_mode = 2
 
-[node name="ColorblindCheck" type="CheckBox" parent="Panel/VBox"]
+[node name="LblHand" type="Label" parent="Panel/Scroll/VBox"]
 layout_mode = 2
-text = "High Contrast / Colorblind Vision Markers"
+text = "Touch Controls Layout"
 
-[node name="StatsCheck" type="CheckBox" parent="Panel/VBox"]
+[node name="HandOption" type="OptionButton" parent="Panel/Scroll/VBox"]
+layout_mode = 2
+
+[node name="LblJoyOpacity" type="Label" parent="Panel/Scroll/VBox"]
+layout_mode = 2
+text = "Touch Joystick Opacity"
+
+[node name="JoystickOpacitySlider" type="HSlider" parent="Panel/Scroll/VBox"]
+layout_mode = 2
+min_value = 20.0
+value = 85.0
+
+[node name="LblShake" type="Label" parent="Panel/Scroll/VBox"]
+layout_mode = 2
+text = "Screen Shake Intensity"
+
+[node name="ShakeSlider" type="HSlider" parent="Panel/Scroll/VBox"]
+layout_mode = 2
+value = 100.0
+
+[node name="HapticsCheck" type="CheckBox" parent="Panel/Scroll/VBox"]
 layout_mode = 2
 button_pressed = true
-text = "Show Seed & Timers on HUD"
+text = "Haptic Vibration Pulses (Knockout / Caught / Alert)"
+
+[node name="ColorblindCheck" type="CheckBox" parent="Panel/Scroll/VBox"]
+layout_mode = 2
+text = "High Contrast / Colorblind Vision & Touch Glyphs"
+
+[node name="StatsCheck" type="CheckBox" parent="Panel/Scroll/VBox"]
+layout_mode = 2
+text = "Show FPS, Seed & Timers on HUD"
+
+[node name="LblNotch" type="Label" parent="Panel/Scroll/VBox"]
+layout_mode = 2
+text = "Simulate Display Notch (Debug / Testing)"
+
+[node name="NotchOption" type="OptionButton" parent="Panel/Scroll/VBox"]
+layout_mode = 2
 
 [node name="BtnClose" type="Button" parent="Panel"]
-custom_minimum_size = Vector2(120, 34)
+custom_minimum_size = Vector2(140, 36)
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -60.0
-offset_top = -44.0
-offset_right = 60.0
+offset_left = -70.0
+offset_top = -46.0
+offset_right = 70.0
 offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0

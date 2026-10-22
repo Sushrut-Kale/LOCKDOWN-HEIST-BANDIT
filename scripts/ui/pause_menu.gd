@@ -17,6 +17,11 @@ func _ready() -> void:
 	btn_restart.pressed.connect(_on_restart)
 	btn_menu.pressed.connect(_on_menu)
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
+		get_viewport().set_input_as_handled()
+		_on_resume()
+
 func _on_resume() -> void:
 	AudioManager.play_sfx("ui_click")
 	get_tree().paused = false

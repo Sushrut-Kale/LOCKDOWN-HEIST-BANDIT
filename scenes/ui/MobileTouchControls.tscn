@@ -1,0 +1,178 @@
+[gd_scene load_steps=12 format=3 uid="uid://m0b1l3t0uchct"]
+
+[ext_resource type="Script" path="res://scripts/ui/mobile_touch_controls.gd" id="1_mtc"]
+[ext_resource type="Texture2D" path="res://assets/ui/touch_joystick_ring.png" id="2_ring"]
+[ext_resource type="Texture2D" path="res://assets/ui/touch_joystick_knob.png" id="3_knob"]
+[ext_resource type="Texture2D" path="res://assets/ui/touch_context_default.png" id="4_ctx"]
+[ext_resource type="Script" path="res://scripts/ui/radial_progress.gd" id="5_rad"]
+[ext_resource type="Texture2D" path="res://assets/ui/touch_coin.png" id="6_coin"]
+[ext_resource type="Texture2D" path="res://assets/ui/touch_gadget.png" id="7_gad"]
+[ext_resource type="Texture2D" path="res://assets/ui/touch_sprint.png" id="8_spr"]
+[ext_resource type="Texture2D" path="res://assets/ui/touch_pause.png" id="9_pau"]
+
+[node name="MobileTouchControls" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_mtc")
+
+[node name="JoystickBase" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 180.0
+offset_top = 880.0
+offset_right = 180.0
+offset_bottom = 880.0
+mouse_filter = 2
+
+[node name="Ring" type="TextureRect" parent="JoystickBase"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -80.0
+offset_right = 80.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_ring")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Knob" type="TextureRect" parent="JoystickBase"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -34.0
+offset_top = -34.0
+offset_right = 34.0
+offset_bottom = 34.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_knob")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ActionCluster" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 1560.0
+offset_top = 780.0
+offset_right = 1900.0
+offset_bottom = 1060.0
+mouse_filter = 1
+
+[node name="BtnContext" type="TextureButton" parent="ActionCluster"]
+custom_minimum_size = Vector2(88, 88)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.0
+offset_top = -44.0
+offset_right = 44.0
+offset_bottom = 44.0
+grow_horizontal = 2
+grow_vertical = 2
+texture_normal = ExtResource("4_ctx")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="RadialProgress" type="Control" parent="ActionCluster/BtnContext"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_rad")
+
+[node name="Label" type="Label" parent="ActionCluster/BtnContext"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_bottom = 22.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.9, 0.5, 1)
+theme_override_font_sizes/font_size = 11
+text = "ACTION"
+horizontal_alignment = 1
+
+[node name="BtnCoin" type="TextureButton" parent="ActionCluster"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 18.0
+offset_top = 12.0
+offset_right = 82.0
+offset_bottom = 76.0
+texture_normal = ExtResource("6_coin")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="BtnGadget" type="TextureButton" parent="ActionCluster"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 220.0
+offset_top = 12.0
+offset_right = 284.0
+offset_bottom = 76.0
+texture_normal = ExtResource("7_gad")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Pips" type="Label" parent="ActionCluster/BtnGadget"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -30.0
+offset_top = -18.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "x1"
+horizontal_alignment = 2
+
+[node name="BtnSprint" type="TextureButton" parent="ActionCluster"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_left = 220.0
+offset_top = 180.0
+offset_right = 284.0
+offset_bottom = 244.0
+texture_normal = ExtResource("8_spr")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="BtnPause" type="TextureButton" parent="."]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 0
+offset_left = 1830.0
+offset_top = 24.0
+offset_right = 1886.0
+offset_bottom = 80.0
+texture_normal = ExtResource("9_pau")
+ignore_texture_size = true
+stretch_mode = 5
